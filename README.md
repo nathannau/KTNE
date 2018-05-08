@@ -1,2 +1,7 @@
 # KTNE
-keep talking and nobody explodes IRL
+Keep Talking and Nobody Explodes IRL
+
+
+
+# Server (comm)
+
