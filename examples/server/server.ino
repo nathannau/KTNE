@@ -9,13 +9,16 @@
 #define PIN_BTN_UP 5
 #define PIN_BTN_DOWN 6
 #define PIN_BTN_RIGHT 7
+#define PIN_SS_RIGHT 8
+#define PIN_SS_BOTTOM 9
 
 
 
 
 
 Ktne::Display1602 display;
-Ktne::Server server(display);
+Ktne::ServerI2C serverI2C(PIN_SS_RIGHT, PIN_SS_BOTTOM); 
+Ktne::Server server(&display, &serverI2C);
 //SoftwareSerial mySerial(10, 11); // RX, TX
 
 bool lastBtnUpState = false;
@@ -40,7 +43,7 @@ void setup() {
 
 void checkBtn(uint8_t pin, bool* registre, void (*actionHigh)(), void (*actionLow)()) 
 {
-    if ((digitalRead(PIN_BTN_UP)==HIGH) != *registre)
+    if ((digitalRead(pin)==HIGH) != *registre)
     {
         *registre ^= 1;
         if (*registre) 

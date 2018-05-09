@@ -1,5 +1,6 @@
 
 
+//#include <Arduino.h>
 #include "Server.h"
 
 namespace Ktne 
@@ -21,15 +22,17 @@ namespace Ktne
     const char* Server::_menuItems_InPause[] = { Server::Menu_Resume, Server::Menu_Restart, Server::Menu_Return, 0 };
     const char* Server::_menuItems_Config[] = { Server::Menu_GameNumber, Server::Menu_MaxError, Server::Menu_TimeByModule, Server::Menu_Return, 0 };
 
-    Server::Server(Display display) 
+    Server::Server(Display *display, ServerI2C *serverI2C) 
     {
         this->_display = display;
+        this->_serverI2C = serverI2C;
         this->_state = State::NotInit;
         this->_timeByModule = DEFAULT_TIME_BY_MODULE;
     }
 
     void Server::Setup() {
-        this->_display.Setup();
+        this->_display->Setup();
+        this->_serverI2C->Setup();
     }
 
     void Server::Start() {
@@ -40,7 +43,7 @@ namespace Ktne
 
 
 
-        this->_display.ExecuteOnce();
+        this->_display->ExecuteOnce();
     }
 
     void Server::SetState(State state)
@@ -50,41 +53,41 @@ namespace Ktne
         {
             case State::NotInit:
             {
-                this->_display.SetMode(Display::Mode::Menu);
+                this->_display->SetMode(Display::Mode::Menu);
                 this->_currentMenuActions = this->_menuActions_NotInit;
-                this->_display.SetMenuItems(Server::_menuItems_NotInit);
-                this->_display.SetCurrentItem(0);
+                this->_display->SetMenuItems(Server::_menuItems_NotInit);
+                this->_display->SetCurrentItem(0);
                 break;
             }
             case State::Init:
             {
-                this->_display.SetMode(Display::Mode::Menu);
+                this->_display->SetMode(Display::Mode::Menu);
                 this->_currentMenuActions = this->_menuActions_Init;
-                this->_display.SetMenuItems(Server::_menuItems_Init);
-                this->_display.SetCurrentItem(0);
+                this->_display->SetMenuItems(Server::_menuItems_Init);
+                this->_display->SetCurrentItem(0);
                 break;
             }
             case State::Config:
             {
-                this->_display.SetMode(Display::Mode::Menu);
+                this->_display->SetMode(Display::Mode::Menu);
                 this->_currentMenuActions = this->_menuActions_Config;
-                this->_display.SetMenuItems(Server::_menuItems_Config);
-                this->_display.SetCurrentItem(0);
+                this->_display->SetMenuItems(Server::_menuItems_Config);
+                this->_display->SetCurrentItem(0);
                 break;
             }
             case State::Playing:
             {
-                this->_display.SetMode(Display::Mode::Timer);
+                this->_display->SetMode(Display::Mode::Timer);
                 this->_time = this->_timeByModule * this->GetModulesCount();
-                this->_display.SetTime(this->_time);
+                this->_display->SetTime(this->_time);
                 break;
             }
             case State::InPause:
             {
-                this->_display.SetMode(Display::Mode::Menu);
+                this->_display->SetMode(Display::Mode::Menu);
                 this->_currentMenuActions = this->_menuActions_InPause;
-                this->_display.SetMenuItems(Server::_menuItems_InPause);
-                this->_display.SetCurrentItem(0);
+                this->_display->SetMenuItems(Server::_menuItems_InPause);
+                this->_display->SetCurrentItem(0);
                 break;
             }
         }
@@ -93,7 +96,7 @@ namespace Ktne
     uint8_t Server::GetModulesCount()
     {
         uint8_t ret = 0;
-        for(Module* module = this->_modules; module != NULL; module = module->next, ret++) ;
+        for(ServerModule* module = this->_modules; module != NULL; module = module->next, ret++) ;
         return ret;
         
     }
@@ -106,7 +109,7 @@ namespace Ktne
             case State::Init:
             case State::Config:
             case State::InPause:
-                this->_display.MoveToNextItem();
+                this->_display->MoveToNextItem();
             break;
             case State::Playing:
                 this->OnMenu_Pause();
@@ -121,7 +124,7 @@ namespace Ktne
             case State::Init:
             case State::Config:
             case State::InPause:
-                this->_display.MoveToPrevItem();
+                this->_display->MoveToPrevItem();
             break;
             case State::Playing:
                 this->OnMenu_Pause();
@@ -137,7 +140,7 @@ namespace Ktne
             case State::Config:
             case State::InPause:
             {
-                cbMenuAction action = this->_currentMenuActions[this->_display.GetCurrentItem()];
+                cbMenuAction action = this->_currentMenuActions[this->_display->GetCurrentItem()];
                 (this->*action)();
             }
             break;
@@ -158,7 +161,12 @@ namespace Ktne
     void Server::OnMenu_Init()
     {
         
+
+
+
     }
+
+
     void Server::OnMenu_MaxError()
     {
         

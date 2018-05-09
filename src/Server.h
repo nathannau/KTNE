@@ -6,6 +6,8 @@
  #include <stdlib.h>
 #include <stdint.h>
 //#include <cstddef>
+#include "ServerModule.h"
+#include "ServerI2C.h"
 #include "Display.h"
 #include "Lang.h"
 #include "Params.h"
@@ -25,7 +27,7 @@ namespace Ktne
             };
 
 
-            Server(Display display);
+            Server(Display *display, ServerI2C *serverI2C);
             void Setup();
             void ExecuteOnce();
 
@@ -65,22 +67,14 @@ namespace Ktne
 
             void (Server::*menuActions[])();
 
-            class Module {
-                public:
-                    bool solved;
-                    uint8_t x;
-                    uint8_t y;
-                    uint8_t id;
-                    Module* next;
-            };
-
             uint8_t GetModulesCount();
 
         private:
             bool _started;
-            Display _display;
+            Display *_display;
+            ServerI2C *_serverI2C;
             State _state;
-            Module* _modules;
+            ServerModule* _modules;
             int _time;
             int _timeByModule;
 
