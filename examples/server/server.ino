@@ -52,25 +52,13 @@ void checkBtn(uint8_t pin, bool* registre, void (*actionHigh)(), void (*actionLo
         { if (actionLow!=NULL) actionLow(); }
     }
 }
-inline void onBtnUpHigh() { server.ActionPrev(); }
-//inline void onBtnUpLow() { }
-inline void onBtnDownHigh() { server.ActionNext(); }
-//inline void onBtnDownLow() { }
-inline void onBtnRightHigh() { server.ActionValid(); }
-//inline void onBtnRightLow() { }
 
 void loop() 
 {
-    checkBtn(PIN_BTN_UP, &lastBtnUpState, &onBtnUpHigh, NULL);
-    checkBtn(PIN_BTN_DOWN, &lastBtnDownState, &onBtnDownHigh, NULL);
-    checkBtn(PIN_BTN_RIGHT, &lastBtnRightState, &onBtnRightHigh, NULL);
+    checkBtn(PIN_BTN_UP, &lastBtnUpState, []() { server.ActionPrev(); }, NULL);
+    checkBtn(PIN_BTN_DOWN, &lastBtnDownState, []() { server.ActionNext(); }, NULL);
+    checkBtn(PIN_BTN_RIGHT, &lastBtnRightState, []() { server.ActionValid(); }, NULL);
 
     server.ExecuteOnce();
-    // if (mySerial.available()) {
-    //     Serial.write(mySerial.read());
-    // }
-    // if (Serial.available()) {
-    //     mySerial.write(Serial.read());
-    // }
 }
 

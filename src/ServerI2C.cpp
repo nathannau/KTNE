@@ -6,11 +6,10 @@
 
 namespace Ktne 
 {
-    ServerI2C::ServerI2C(uint8_t pinSsRight, uint8_t pinSsBottom) 
-    {
-        this->_pinSsRight = pinSsRight;
-        this->_pinSsBottom = pinSsBottom;
-    }
+    ServerI2C::ServerI2C(uint8_t pinSsRight, uint8_t pinSsBottom) : 
+        _pinSsRight(pinSsRight),
+        _pinSsBottom(pinSsBottom) { }
+
     void ServerI2C::Setup() 
     {
         pinMode(this->_pinSsRight, OUTPUT);
@@ -18,7 +17,6 @@ namespace Ktne
         digitalWrite(this->_pinSsRight, LOW);
         digitalWrite(this->_pinSsBottom, LOW);
         Wire.begin();
-
     }
     ServerModule* ServerI2C::Init() 
     {
@@ -37,7 +35,7 @@ namespace Ktne
 
                 // On test le prochain module. Et on lui assigne un ID
                 ServerModule* next = this->CheckModule(x, y, id, parent);
-#ifdef DEBUG
+                #ifdef DEBUG
                 Serial.write("x=");
                 Serial.write(x);
                 Serial.write("y=");
@@ -46,7 +44,7 @@ namespace Ktne
                 Serial.write(id);
                 Serial.write("result=");
                 Serial.write(next==NULL?"NULL":"Success");
-#endif
+                #endif
                 if (x==0) lineParent = next; // Enregistre le parent de la prochaine ligne
 
                 if (next != NULL)
@@ -80,11 +78,12 @@ namespace Ktne
         else
             this->SendMessageActiveSs(parent, x!=0);
 
-        return (this->SendMessageSetId(id)) ?
+        delay(100);
+
+        return (this->SendMessageSetInfo(x, y, id)) ?
             new ServerModule(x, y, id) :
             NULL;
     }
-    
     
     void ServerI2C::SendMessageActiveSs(ServerModule* dest, bool horizontal) 
     {
@@ -93,10 +92,12 @@ namespace Ktne
         Wire.write(horizontal?1:0);
         Wire.endTransmission();
     }
-    bool ServerI2C::SendMessageSetId(uint8_t id) 
+    bool ServerI2C::SendMessageSetInfo(uint8_t x, uint8_t y,uint8_t id)
     {
         Wire.beginTransmission(0);
-        Wire.write(ID_SET_ID);
+        Wire.write(ID_SET_INFO);
+        Wire.write(x);
+        Wire.write(y);
         Wire.write(id);
         Wire.endTransmission(false);
         Wire.requestFrom(id, (uint8_t)1);

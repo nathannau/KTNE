@@ -21,7 +21,7 @@ namespace Ktne
             ServerModule* Init();
 
             void SendMessageActiveSs(ServerModule* dest, bool horizontal);
-            bool SendMessageSetId(uint8_t id);
+            bool SendMessageSetInfo(uint8_t x, uint8_t y,uint8_t id);
             
         protected:
             ServerModule* CheckModule(uint8_t x, uint8_t y, uint8_t id, ServerModule* parent);

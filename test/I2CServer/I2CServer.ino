@@ -24,7 +24,7 @@ bool lastBtnState = false;
 
 void loop() 
 {
-    if ((digitalRead(PIN_BTN_UP)==HIGH) != lastBtnState)
+    if ((digitalRead(PIN_BTN)==HIGH) != lastBtnState)
     {
         lastBtnState ^= 1;
         if (lastBtnState)
