@@ -14,7 +14,7 @@ namespace Ktne
         _pinSsRight(pinSsRight), 
         _pinSsBottom(pinSsBottom) { }
 
-    void ClientI2C::Setup() 
+    void ClientI2C::Setup(void(fnToReceive)(int)) 
     {
         pinMode(this->_pinTrigger, INPUT_PULLUP);
         pinMode(this->_pinSsRight, OUTPUT);
@@ -24,9 +24,7 @@ namespace Ktne
         Wire.begin(0x0);
         TWAR = 1;
 
-        auto fn = [this](int numBytes) { this->onReceive(numBytes); };
-        Wire.onReceive( (void (*)(int)) fn);
-        // Wire.onReceive([&](int numBytes) { /*this->onReceive(numBytes);*/ });
+        Wire.onReceive(fnToReceive);
     }
 
     void ClientI2C::ExecuteOnce()
@@ -52,7 +50,7 @@ namespace Ktne
                     digitalWrite(this->_pinSsRight, HIGH);
                 else
                     digitalWrite(this->_pinSsBottom, HIGH);
-                if (this->_onActiveSs!=NULL) this->_onActiveSs(isHorizontal);
+                this->onActiveSs(isHorizontal);
             }
             break;
             case ID_SET_INFO:
@@ -63,7 +61,7 @@ namespace Ktne
                 Wire.begin(this->_id);
                 TWAR = (this->_id << 1) | 1;
                 Wire.write(1);
-                if (this->_onSetInfo!=NULL) this->_onSetInfo(this->_x, this->_y, this->_id); 
+                this->onSetInfo(this->_x, this->_y, this->_id); 
             }
             break;
         }
@@ -82,15 +80,6 @@ namespace Ktne
     uint8_t ClientI2C::getId()
     {
         return this->_id;
-    }
-
-    void ClientI2C::onReceiveMessageActiveSs(void (*onActiveSs)(bool horizontal))
-    {
-        this->_onActiveSs = onActiveSs;
-    }
-    bool ClientI2C::onReceiveMessageSetInfo(void (*onSetInfo)(uint8_t x, uint8_t y,uint8_t id))
-    {
-        this->_onSetInfo = onSetInfo;
     }
 
 };

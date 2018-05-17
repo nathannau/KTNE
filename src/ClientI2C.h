@@ -17,7 +17,7 @@ namespace Ktne
     {
         public:
             ClientI2C(uint8_t pinTrigger, uint8_t pinSsRight, uint8_t pinSsBottom);
-            void Setup();
+            void Setup(void(fnToReceive)(int));
             void ExecuteOnce();
 
             bool isActif();
@@ -26,11 +26,12 @@ namespace Ktne
 
             uint8_t getId();
 
-            void onReceiveMessageActiveSs(void (*onActiveSs)(bool horizontal));
-            bool onReceiveMessageSetInfo(void (*onSetInfo)(uint8_t x, uint8_t y,uint8_t id));
+            virtual void onActiveSs(bool horizontal) {}
+            virtual bool onSetInfo(uint8_t x, uint8_t y,uint8_t id) {}
+
+            void onReceive(int numBytes);
 
         protected:
-            void onReceive(int numBytes);
 
         private:
             uint8_t _pinTrigger;
@@ -42,8 +43,6 @@ namespace Ktne
             uint8_t _x; 
             uint8_t _y;
             uint8_t _id;
-            void (*_onActiveSs)(bool horizontal);
-            void (*_onSetInfo)(uint8_t x, uint8_t y,uint8_t id);
     };
 };
 

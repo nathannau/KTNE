@@ -12,7 +12,9 @@ Ktne::ClientI2C clientI2C(PIN_TRIGGER, PIN_SS_RIGHT, PIN_SS_BOTTOM);
 void setup() {
     Serial.begin(9600);
 
-    clientI2C.Setup();
+    clientI2C.Setup(
+        [](int numBytes) { clientI2C.onReceive(numBytes); }
+    );
 }
 
 
